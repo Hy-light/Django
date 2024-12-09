@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     
     # Our own apps
     'watchlist_app',
-    'rest_framework',
     
 ]
 
