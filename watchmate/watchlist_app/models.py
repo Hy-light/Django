@@ -17,7 +17,10 @@ class WatchList(models.Model):
     storyline = models.TextField(max_length=200)
     platform = models.ForeignKey(StreamPlatform, on_delete=models.CASCADE, related_name="watchlist")  # one-to-many relationship with StreamPlatform 
     active = models.BooleanField(default=True)
+    avg_rating = models.FloatField(default=0.0)  # calculated automatically when a new review is added
+    number_rating = models.IntegerField(default=0) # calculated automatically when
     created = models.DateTimeField(auto_now_add=True) # stored automatically when an object is created
+    
     
     def __str__(self):
         return self.title

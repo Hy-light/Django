@@ -8,10 +8,12 @@ from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
+
+from watchlist_app.api.permissions import AdminOrReadOnly, ReviewOwnerOrReadOnly
 from watchlist_app.models import WatchList, StreamPlatform, Review
 from watchlist_app.api.serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSerializer
 
-
+# Class for Creating Reviews
 class ReviewCreate(generics.CreateAPIView):
     serializer_class = ReviewSerializer
     
@@ -30,6 +32,14 @@ class ReviewCreate(generics.CreateAPIView):
             raise ValidationError("You have already reviewed this movie.")
         
         
+        if movie.number_rating == 0:
+            movie.avg_rating = serializer.validated_data['rating']
+        else:
+            movie.avg_rating = (movie.avg_rating + serializer.validated_data['rating']) / 2
+            
+        movie.number_rating == movie.number_rating + 1
+        movie.save()
+        
         serializer.save(watchlist=movie, review_user=review_user)
         
 
@@ -46,6 +56,8 @@ class ReviewList(generics.ListAPIView):
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [AdminOrReadOnly, ReviewOwnerOrReadOnly]
+    
 
 
 class WatchListAV(APIView):
