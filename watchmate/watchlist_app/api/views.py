@@ -37,7 +37,7 @@ class ReviewCreate(generics.CreateAPIView):
         else:
             movie.avg_rating = (movie.avg_rating + serializer.validated_data['rating']) / 2
             
-        movie.number_rating == movie.number_rating + 1
+        movie.number_rating += 1
         movie.save()
         
         serializer.save(watchlist=movie, review_user=review_user)
@@ -53,11 +53,11 @@ class ReviewList(generics.ListAPIView):
         pk = self.kwargs['pk']
         return Review.objects.filter(watchlist=pk)
 
+
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [AdminOrReadOnly, ReviewOwnerOrReadOnly]
-    
+    permission_classes = [ReviewOwnerOrReadOnly]
 
 
 class WatchListAV(APIView):
@@ -73,7 +73,8 @@ class WatchListAV(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
+
 class WatchDetailAV(APIView):
     def get(self, request, pk):
         movie = WatchList.objects.get(pk=pk)
@@ -94,30 +95,6 @@ class WatchDetailAV(APIView):
         movie.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-# Practice example using viewsets.ViewSet and routers
-'''
-class StreamPlatformVS(viewsets.ViewSet):
-    
-    def list(self, request):
-        queryset = StreamPlatform.objects.all()
-        serializer = StreamPlatformSerializer(queryset, many=True)
-        return Response(serializer.data)
-    
-    def retrieve(self, request, pk=None):
-        queryset = StreamPlatform.objects.all()
-        watchlist = get_object_or_404(queryset, pk=pk)
-        serializer = StreamPlatformSerializer(watchlist)
-        return Response(serializer.data)
-    
-    def create(self, request):
-        serializer = StreamPlatformSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-'''
 
 # Using viewsets.ModelViewsets
 class StreamPlatformVS(viewsets.ModelViewSet):
