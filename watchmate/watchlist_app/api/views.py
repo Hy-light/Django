@@ -9,13 +9,14 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
 
-from watchlist_app.api.permissions import AdminOrReadOnly, ReviewOwnerOrReadOnly
+from watchlist_app.api.permissions import IsAdminOrReadOnly, ReviewOwnerOrReadOnly
 from watchlist_app.models import WatchList, StreamPlatform, Review
 from watchlist_app.api.serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSerializer
 
 # Class for Creating Reviews
 class ReviewCreate(generics.CreateAPIView):
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
     
     
     def get_queryset(self):
@@ -47,7 +48,7 @@ class ReviewCreate(generics.CreateAPIView):
 class ReviewList(generics.ListAPIView):
     # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         pk = self.kwargs['pk']
@@ -61,6 +62,8 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class WatchListAV(APIView):
+    # only admin can view and modify
+    permission_classes = [IsAdminOrReadOnly]
     def get(self, request):
         movies = WatchList.objects.all()
         serializer = WatchListSerializer(movies, many=True)
@@ -76,6 +79,9 @@ class WatchListAV(APIView):
 
 
 class WatchDetailAV(APIView):
+    # only admin can modify
+    permission_classes = [IsAdminOrReadOnly]
+    
     def get(self, request, pk):
         movie = WatchList.objects.get(pk=pk)
         serializer = WatchListSerializer(movie)
@@ -100,10 +106,14 @@ class WatchDetailAV(APIView):
 class StreamPlatformVS(viewsets.ModelViewSet):
     queryset = StreamPlatform.objects.all()
     serializer_class = StreamPlatformSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
 
 # streaming platform view
 class StreamPlatformAV(APIView):
+    # only admin can view and modify
+    permission_classes = [IsAdminOrReadOnly]
+    
     def get(self, request):
         platform = StreamPlatform.objects.all()
         serializer = StreamPlatformSerializer(platform, many=True)
@@ -120,6 +130,9 @@ class StreamPlatformAV(APIView):
 
 # # List particular stream platform details
 class StreamPlatformDetailAV(APIView):
+    # only admin can view and modify
+    permission_classes = [IsAdminOrReadOnly]
+    
     def get(self, request, pk):
         platform = StreamPlatform.objects.get(pk=pk)
         serializer = StreamPlatformSerializer(platform)
