@@ -8,12 +8,23 @@ from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 
 from watchlist_app.api.permissions import IsAdminOrReadOnly, ReviewOwnerOrReadOnly
 from watchlist_app.models import WatchList, StreamPlatform, Review
 from watchlist_app.api.serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSerializer
 from watchlist_app.api.throttling import ReviewCreateThrottle, ReviewListThrottle
+
+
+class UserReview(generics.ListAPIView):
+    serializer_class = ReviewSerializer
+    
+    def get_queryset(self):
+        username = self.kwargs['username']
+        return Review.objects.filter(review_user__username=username)
+
 
 # Class for Creating Reviews
 class ReviewCreate(generics.CreateAPIView):
@@ -52,6 +63,8 @@ class ReviewList(generics.ListAPIView):
     # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     throttle_classes = [ReviewListThrottle, AnonRateThrottle]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['review_user__username', 'active']
     # permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
@@ -65,7 +78,12 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [ReviewOwnerOrReadOnly]
     throttle_classes = [UserRateThrottle, AnonRateThrottle]
     
-
+class WatchListGV(generics.ListAPIView):
+    queryset = WatchList.objects.all()
+    serializer_class = WatchListSerializer
+    
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['avg_rating']
 
 class WatchListAV(APIView):
     # only admin can view and modify

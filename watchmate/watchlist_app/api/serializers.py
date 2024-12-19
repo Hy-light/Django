@@ -12,7 +12,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 # Model.Serializers
 class WatchListSerializer(serializers.ModelSerializer):
-    reviews = ReviewSerializer(many=True, read_only=True)  # many=True for one-to-many relationship
+    # reviews = ReviewSerializer(many=True, read_only=True)  # many=True for one-to-many relationship
+    platform = serializers.CharField(source='platform.name')  # source specifies the field to be used for the display in the serializer
     
     class Meta:
         model = WatchList
